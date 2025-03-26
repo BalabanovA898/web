@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru-ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A*</title>
+    <link rel="stylesheet" href="./main.css" />
+</head>
+
+<body>
+    <div class="main">
+        <p id="main-title" class="title">A* - алгоритм для поиска маршрута.</p>
+        <container class="main-input-container">
+            <input type="number" class="input" id="main-input-pixel-size"
+                placeholder="Введите количество клеток"></input>
+            <button class="button" id="set-pixel-size-btn">Применить</button>
+            <select class="main-input-select" id="main-input-select">
+                <option value="start">start</option>
+                <option value="end">end</option>
+                <option value="wall">wall</option>
+            </select>
+            <button class="button" id="main-a-star-btn">Найти путь</button>
+            <button class="button" id="main-generate-maze-btn">Создать лабиринт</button>
+        </container>
+        <container class="main-canvas-container">
+            <canvas id="main-canvas" class="canvas">
+                Your browser so bad. Maybe it's time to get upgraded.
+            </canvas>
+        </container>
+    </div>
+
+</body>
+<script src="./main.js"></script>
+
+</html>
