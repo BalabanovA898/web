@@ -5,7 +5,7 @@ canvas.height = 600;
 
 let points = [];
 let clusters = [];
-const k = 3; // Количество кластеров
+const k = 3;
 
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
