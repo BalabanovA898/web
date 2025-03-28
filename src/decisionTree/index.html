@@ -5,12 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дерево решений</title>
-    <link rel="stylesheet" href="../styles/decisionTree.css">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/decisionTree.css">
 </head>
 
 <body>
+    <div class="header">
+        <a href="../a_star/index.html">A*</a>
+        <a href="../genetic/index.html">genetic</a>
+        <a href="../genetic/index.html">genetic</a>
+        <a href="../genetic/index.html">genetic</a>
+        <a href="../decisionTree/index.html">Tree of decisions</a>
+        <a href="../genetic/index.html">genetic</a>
+    </div>
+    <div class="main-part">
+        <textarea id="csv-input">
+        </textarea>
+        <input type="number" id="columnToSearch" />
+        <button id="csv-load">Загрузить</button>
 
+        <textarea id="test-data"></textarea>
+        <button id="test-data-load">Тестировать</button>
+
+        <canvas id="decision-tree-canvas"></canvas>
+    </div>
 </body>
 
 <script src="./main.js"></script>
