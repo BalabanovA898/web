@@ -11,23 +11,27 @@
 
 <body>
     <div class="header">
-        <a href="../a_star/index.html">A*</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../decisionTree/index.html">Tree of decisions</a>
-        <a href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../a_star/index.html">A*</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../decisionTree/index.html">Tree of decisions</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
     </div>
     <div class="main-part">
-        <textarea id="csv-input">
-        </textarea>
-        <input type="number" id="columnToSearch" />
-        <button id="csv-load">Загрузить</button>
+        <div class="main-part-input-container">
+            <textarea id="csv-input" class="std-input decision-tree-text-area"
+                placeholder="Место для обучающей csv выборки"></textarea>
+            <input type="number" id="columnToSearch" class="std-input decision-tree-input"
+                placeholder="Номер столбца с результатом" />
+            <button id="csv-load" class="std-btn decision-tree-btn">Загрузить</button>
+            <textarea id="test-data" class="std-input decision-tree-text-area"
+                placeholder="Место для тестовых данных"></textarea>
+            <button id="test-data-load" class="std-btn decision-tree-btn">Тестировать</button>
+            <p class="test-result" id="test-result">Здесь будет результат</p>
+        </div>
 
-        <textarea id="test-data"></textarea>
-        <button id="test-data-load">Тестировать</button>
-
-        <canvas id="decision-tree-canvas"></canvas>
+        <canvas id="decision-tree-canvas" class="canvas"></canvas>
     </div>
 </body>
 

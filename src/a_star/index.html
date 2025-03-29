@@ -11,25 +11,25 @@
 
 <body>
     <div class="header">
-        <a href="../a_star/index.html">A*</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../decisionTree/index.html">Tree of decisions</a>
-        <a href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../a_star/index.html">A*</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../decisionTree/index.html">Tree of decisions</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
     </div>
     <div class="main">
         <container class="main-input-container">
-            <input type="number" class="input" id="main-input-pixel-size"
+            <input type="number" class="std-input a-star-input" id="main-input-pixel-size"
                 placeholder="Введите количество клеток"></input>
-            <button class="button" id="set-pixel-size-btn">Применить</button>
-            <select class="main-input-select" id="main-input-select">
+            <button class="std-btn a-star-btn" id="set-pixel-size-btn">Применить</button>
+            <select class="main-input-select std-btn a-star-btn" id="main-input-select">
                 <option value="start">start</option>
                 <option value="end">end</option>
                 <option value="wall">wall</option>
             </select>
-            <button class="button" id="main-a-star-btn">Найти путь</button>
-            <button class="button" id="main-generate-maze-btn">Создать лабиринт</button>
+            <button class="std-btn a-star-btn" id="main-a-star-btn">Найти путь</button>
+            <button class="std-btn a-star-btn" id="main-generate-maze-btn">Создать лабиринт</button>
         </container>
         <container class="main-canvas-container">
             <canvas id="main-canvas" class="canvas">
