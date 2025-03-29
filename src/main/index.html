@@ -11,22 +11,17 @@
 
 <body>
     <div class="header">
-        <a href="../a_star/index.html">A*</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../genetic/index.html">genetic</a>
-        <a href="../decisionTree/index.html">Tree of decisions</a>
-        <a href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../a_star/index.html">A*</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
+        <a class="header-btn" href="../decisionTree/index.html">Tree of decisions</a>
+        <a class="header-btn" href="../genetic/index.html">genetic</a>
     </div>
     <div class="main-part">
-        <p class="main-part-p" id="p-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea nihil at ipsum
-            quos omnis inventore dolores asperiores repellat voluptas beatae dolorem dolorum, eveniet mollitia molestias
-            alias facere deleniti minima quidem doloribus natus suscipit dicta quas. A nesciunt maxime quae error
-            commodi ex, dolor fugit nihil ducimus est fugiat possimus libero reiciendis ab natus, velit saepe
-            consectetur labore molestiae itaque? A modi ea, temporibus amet, facere optio officia non molestiae culpa,
-            unde voluptatem hic? Aut, explicabo veritatis. Voluptas quo aperiam eaque ullam blanditiis. Laudantium,
-            alias nemo recusandae pariatur officia quidem quaerat harum deserunt excepturi corporis provident odit
-            accusamus assumenda dolorum repellat.</p>
+        <p class="main-part-p" id="p-text">Далеко-далеко за словесными горами в стране, гласных и согласных живут рыбные
+            тексты. Ведущими ему пустился живет толку большого осталось страна проектах диких наш, рукописи продолжил
+            послушавшись приставка правилами назад речью. Свой, буквенных.</p>
         <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.freecodecamp.org%2Fnews%2Fcontent%2Fimages%2F2019%2F07%2Fbest-js-meme-to-date-2.png&f=1&nofb=1&ipt=0d219af61db4e297370c3f6eb173f58d98261b4ec3d5b95fb14e1d9eddc6da1d&ipo=images"
             alt="Что-то пошло не так">
     </div>
@@ -37,12 +32,12 @@
     const p = document.getElementById("p-text");
     console.log(script.innerText);
     p.innerText = script.innerHTML;
-    let pSplited = p.innerHTML.split("<br>");
+    let pSplitted = p.innerHTML.split("<br>");
 
     setInterval(() => {
-        pSplited.push(pSplited[0]);
-        pSplited.splice(0, 1);
-        p.innerHTML = pSplited.join("<br>");
+        pSplitted.push(pSplitted[0]);
+        pSplitted.splice(0, 1);
+        p.innerHTML = pSplitted.join("<br>");
     }, 1000 / 3);
 </script>
 

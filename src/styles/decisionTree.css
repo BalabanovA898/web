@@ -1,7 +1,42 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: antiquewhite;
+.main-part {
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 5px;
+}
+
+.main-part-input-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    width: 50%;
+}
+
+.decision-tree-text-area {
+    height: 300px;
+    width: 100%;
+    margin: 5px;
+}
+
+.decision-tree-input {
+    width: 100%;
+    margin: 5px;
+    color: var(--text-color);
+}
+
+.decision-tree-btn {
+    margin: 5px;
+    height: 50px;
+}
+
+.canvas {
+    margin-right: 5px;
+}
+
+.test-result {
+    margin: 5px;
+    height: 50px;
+    border-top: 2px solid var(--header-btn-color);
+    border-bottom: 2px solid var(--header-btn-color);
+    padding: 5px;
 }
 

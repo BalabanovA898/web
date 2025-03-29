@@ -1,5 +1,7 @@
-const MAX_TREE_DEPTH = 5;
+const MAX_TREE_DEPTH = 4;
 const MIN_LEAF_SIZE = 6;
+const INITIAL_NODE_RADIUS = 75;
+const FPS = 3;
 
 function getProbabilityToBeClass(table, rowToSearch, classToCheck) {
     let count = table[rowToSearch].reduce((res, item) => {
@@ -134,7 +136,7 @@ class decisionTreeLeaf {
 
     splitLeaf() {
         if (
-            this.level + 1 < MAX_TREE_DEPTH ||
+            this.level + 1 < MAX_TREE_DEPTH &&
             this.dataSet.length < MIN_LEAF_SIZE
         ) {
             let informationGain = calculateInformationGain(
@@ -182,12 +184,21 @@ class decisionTreeLeaf {
         }
     }
 
-    predict(data) {
+    predict(data, path) {
         if (this.value) return this.value;
-        console.log(this.condition, data);
-        if (Number(data[this.condition.row]) < Number(this.condition.value))
-            return this.left.predict(data);
-        else return this.right.predict(data);
+        if (Number(data[this.condition.row]) < Number(this.condition.value)) {
+            path.push({
+                x: path[path.length - 1].x,
+                y: path[path.length - 1].y + INITIAL_NODE_RADIUS * 2,
+            });
+            return this.left.predict(data, path);
+        } else {
+            path.push({
+                x: path[path.length - 1].x + 1000 / Math.pow(2, this.level + 1),
+                y: path[path.length - 1].y + INITIAL_NODE_RADIUS * 2,
+            });
+            return this.right.predict(data, path);
+        }
     }
 }
 const csvTextArea = document.getElementById("csv-input");
@@ -195,6 +206,7 @@ const csvLoad = document.getElementById("csv-load");
 const testDataTextArea = document.getElementById("test-data");
 const testDataLoad = document.getElementById("test-data-load");
 const decisionTreeCanvas = document.getElementById("decision-tree-canvas");
+const testResult = document.getElementById("test-result");
 
 const ctx = decisionTreeCanvas.getContext("2d");
 
@@ -209,6 +221,7 @@ let testData = "";
 let data = [[]];
 let headers = [];
 let transposedData = [[]];
+let path = [{ x: INITIAL_NODE_RADIUS, y: INITIAL_NODE_RADIUS + 10 }];
 
 let columnToSearch = 0;
 
@@ -230,13 +243,6 @@ csvLoad.onclick = (event) => {
         (item) => item != undefined
     );
 
-    let informationGain = calculateInformationGain(
-        transposedData,
-        columnToSearch,
-        classes,
-        lesserThan
-    );
-
     root = new decisionTreeLeaf(
         transposedData,
         null,
@@ -252,15 +258,35 @@ csvLoad.onclick = (event) => {
         nodes.splice(0, 1);
         if (node.splitLeaf()) nodes.push(node.left, node.right);
     }
-    console.log(root);
 };
+
+function drawTestPath(ctx, path) {
+    ctx.fillStyle = "red";
+    ctx.strokeStyle = "red";
+    console.log(path);
+
+    for (let i = 0; i < path.length; ++i) {
+        ctx.beginPath();
+        ctx.arc(path[i].x, path[i].y, 10, 0, 2 * Math.PI);
+        ctx.fill();
+        if (i > 0) {
+            ctx.beginPath();
+            ctx.moveTo(path[i - 1].x, path[i - 1].y);
+            ctx.lineTo(path[i].x, path[i].y);
+            ctx.stroke();
+        }
+    }
+}
+
+function clearCanvas(ctx) {
+    ctx.clearRect(0, 0, decisionTreeCanvas.width, decisionTreeCanvas.height);
+}
 
 function drawDecisionTree(ctx, root) {
     if (!root) return;
     ctx.fillStyle = "black";
     let nodes = [root];
     while (nodes.length > 0) {
-        console.log(nodes);
         let children = [];
         for (let i = 0; i < nodes.length; i++) {
             if (nodes[i].left) children.push(nodes[i].left);
@@ -271,9 +297,12 @@ function drawDecisionTree(ctx, root) {
             ctx.beginPath();
             ctx.arc(
                 (1000 / nodes.length) * i +
-                    0.5 * Math.min(1000 / nodes.length, 150),
-                170 * nodes[i].level + 0.5 * Math.min(1000 / nodes.length, 150),
-                Math.min(1000 / nodes.length, 150) / 2,
+                    0.5 *
+                        Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
+                170 * nodes[i].level +
+                    0.5 *
+                        Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
+                Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2) / 2,
                 0,
                 2 * Math.PI
             );
@@ -290,49 +319,72 @@ function drawDecisionTree(ctx, root) {
                 170 * nodes[i].level + 75
             );
         }
-        ctx.fillStyle = "black";
+        ctx.strokeStyle = "black";
         for (let j = 0; j < nodes.length; ++j) {
             if (!children.length) return;
-            console.log(children, j);
             ctx.beginPath();
             ctx.moveTo(
                 (1000 / nodes.length) * j +
-                    0.5 * Math.min(1000 / nodes.length, 150),
-                170 * nodes[j].level + 0.5 * Math.min(1000 / nodes.length, 150)
+                    0.5 *
+                        Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
+                170 * nodes[j].level +
+                    0.5 * Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2)
             );
             ctx.lineTo(
                 (1000 / children.length) * (j * 2) +
-                    0.5 * Math.min(1000 / children.length, 150),
+                    0.5 *
+                        Math.min(
+                            1000 / children.length,
+                            INITIAL_NODE_RADIUS * 2
+                        ),
                 170 * children[j * 2].level +
-                    0.5 * Math.min(1000 / children.length, 150)
+                    0.5 *
+                        Math.min(
+                            1000 / children.length,
+                            INITIAL_NODE_RADIUS * 2
+                        )
             );
             ctx.stroke();
 
             ctx.beginPath();
             ctx.moveTo(
                 (1000 / nodes.length) * j +
-                    0.5 * Math.min(1000 / nodes.length, 150),
-                170 * nodes[j].level + 0.5 * Math.min(1000 / nodes.length, 150)
+                    0.5 *
+                        Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
+                170 * nodes[j].level +
+                    0.5 * Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2)
             );
             ctx.lineTo(
                 (1000 / children.length) * (j * 2 + 1) +
-                    0.5 * Math.min(1000 / children.length, 150),
+                    0.5 *
+                        Math.min(
+                            1000 / children.length,
+                            INITIAL_NODE_RADIUS * 2
+                        ),
                 170 * children[j * 2 + 1].level +
-                    0.5 * Math.min(1000 / children.length, 150)
+                    0.5 *
+                        Math.min(
+                            1000 / children.length,
+                            INITIAL_NODE_RADIUS * 2
+                        )
             );
             ctx.stroke();
         }
         nodes = children;
     }
 }
+
 testDataLoad.onclick = (event) => {
     event.preventDefault();
     testData = testDataTextArea.value;
     testData = testData.split("\n").map((item) => item.split(","));
-    console.log(testData, root.predict(testData[0]));
+    path = [{ x: INITIAL_NODE_RADIUS, y: INITIAL_NODE_RADIUS + 10 }];
+    testResult.innerHTML = root.predict(testData[0], path);
 };
 
 setInterval(() => {
+    clearCanvas(ctx);
     drawDecisionTree(ctx, root);
-}, 1000 / 3);
+    if (path.length > 1) drawTestPath(ctx, path);
+}, 1000 / FPS);
 
