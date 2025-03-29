@@ -3,7 +3,7 @@ const FPS = 15;
 const REALLY_BIG_INT = 2147483647;
 const MAX_CANVAS_WIDTH = Math.min(
     window.screen.width,
-    window.screen.height - 300
+    window.screen.height - 350
 );
 const INITIAL_START_POINT = { x: 0, y: 0 };
 const INITIAL_END_POINT = { x: 9, y: 9 };
