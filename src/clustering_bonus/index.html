@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дерево решений</title>
+    <title>Кластеризация</title>
     <link rel="stylesheet" href="../styles/main.css">
-    <link rel="stylesheet" href="../styles/decisionTree.css">
+    <link rel="stylesheet" href="../styles/clustering.css">
 </head>
 
 <body>
@@ -19,18 +19,12 @@
         <a href="../genetic/index.html">placeholder</a>
     </div>
     <div class="main-part">
-        <textarea id="csv-input">
-        </textarea>
-        <input type="number" id="columnToSearch" />
-        <button id="csv-load">Загрузить</button>
-
-        <textarea id="test-data"></textarea>
-        <button id="test-data-load">Тестировать</button>
-
-        <canvas id="decision-tree-canvas"></canvas>
+        <canvas id="canvas"></canvas>
+        <button class="std-btn" id="clusterButton">Запустить кластеризацию K-средних</button>
+        <input class="std-input" type="number" id="k-input" placeholder="K">
+        <button class="std-btn" id="button2">Установить K</button>
     </div>
 </body>
-
-<script src="./main.js"></script>
+<script src="script.js"></script>
 
 </html>
