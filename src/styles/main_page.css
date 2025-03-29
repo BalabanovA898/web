@@ -1,0 +1,14 @@
+.main-part {
+    display: flex;
+    width: 100vw;
+    height: 90vh;
+    justify-content: space-between;
+}
+
+.main-part-p {
+    transform: translateY(300px);
+    font-size: 30px;
+    width: 50vw;
+    height: 100%;
+}
+
