@@ -23,20 +23,6 @@ body {
     justify-content: space-around;
 }
 
-.main-input-container > * {
-    border: solid 2px white;
-    color: white;
-    padding: 5px;
-    background-color: #171723;
-    display: flex;
-    width: 15%;
-    height: 50px;
-    justify-content: center;
-    text-align: center;
-    border-radius: 2px;
-    align-items: center;
-}
-
 .main-input-container {
     display: flex;
 }
@@ -51,5 +37,15 @@ body {
     background-color: white;
     padding: 5px;
     border-radius: 30px;
+}
+
+.a-star-btn {
+    width: 15%;
+    height: 50px;
+}
+
+.a-star-btn {
+    width: 15%;
+    height: 50px;
 }
 
