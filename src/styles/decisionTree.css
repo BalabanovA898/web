@@ -40,3 +40,7 @@
     padding: 5px;
 }
 
+canvas {
+    border: #999999 2px solid;
+    border-radius: 3px;
+}

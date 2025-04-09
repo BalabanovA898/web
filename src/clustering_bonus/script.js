@@ -1,6 +1,7 @@
 const canvas = document.getElementById("canvas");
 const kInput = document.getElementById("k-input");
 const kButton = document.getElementById("button2");
+const clearCanvasButton = document.getElementById("clear-canvas");
 
 const ctx = canvas.getContext("2d");
 
@@ -27,6 +28,19 @@ kButton.addEventListener("click", (event) => {
 document.getElementById("clusterButton").addEventListener("click", () => {
     clusters = kMeans(points, k);
     drawClusters();
+});
+
+clearCanvasButton.addEventListener("click", () => {
+    points = [];
+    clusters = [];
+    drawPoints();
+});
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "z" && event.ctrlKey) {
+        points.pop();
+        drawPoints();
+    }
 });
 
 function drawPoints() {
@@ -112,11 +126,14 @@ function calculateCentroid(points) {
     return { x: centroid.x / points.length, y: centroid.y / points.length };
 }
 
+//TODO: Надо чето с ээтим сделать.
 function getRandomColor() {
-    const letters = "0123456789ABCDEF";
+    const letters = "02468ACE";
     let color = "#";
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
+    for (let i = 0; i < 3; i++) {
+        let color_index = Math.floor(Math.random() * 8);
+        color += letters[color_index];
+        color += letters[color_index];
     }
     return color;
 }

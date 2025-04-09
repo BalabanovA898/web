@@ -213,7 +213,7 @@ const ctx = decisionTreeCanvas.getContext("2d");
 decisionTreeCanvas.width = 1000;
 decisionTreeCanvas.height = 1000;
 
-decisionTreeCanvas.style.backgroundColor = "white";
+decisionTreeCanvas.style.backgroundColor = "#171723";
 
 let csvData = "";
 let testData = "";
