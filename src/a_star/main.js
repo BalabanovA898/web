@@ -17,10 +17,13 @@ const pixelSizeButtonSubmit = document.getElementById("set-pixel-size-btn");
 const selectDrawMode = document.getElementById("main-input-select");
 const findPathButton = document.getElementById("main-a-star-btn");
 const generateMazeButton = document.getElementById("main-generate-maze-btn");
+const clearCanvasButton = document.getElementById("canvas-clear");
 
 let countOfCells = INITIAL_COUNT_OF_CELLS;
 
 let mx = [];
+
+//TODO: FIX TS
 
 let typeToSet = "wall";
 let pixelSize = INITIAL_PIXEL_SIZE;
@@ -74,12 +77,6 @@ pixelSizeButtonSubmit.onclick = (event) => {
 canvas.onclick = (event) => {
     const cellX = Math.floor(event.offsetX / pixelSize);
     const cellY = Math.floor(event.offsetY / pixelSize);
-
-    if (typeToSet === "start") {
-        mx[start.x][start.y] = "None";
-        start.x = cellX;
-        start.y = cellY;
-    }
     if (typeToSet === "end") {
         mx[end.x][end.y] = "None";
         end.x = cellX;
@@ -91,14 +88,15 @@ canvas.onclick = (event) => {
 
 findPathButton.onclick = async (event) => {
     event.preventDefault();
-    !(await A_star(mx, start, end, true)) &&
-        alert("Похоже что пути не сущесвует :(");
+    const res = await A_star(mx, start, end, true);
+    console.log(res);
+    if (!res) alert("Похоже что пути не сущесвует :(");
 };
 
 selectDrawMode.onchange = (event) => (typeToSet = selectDrawMode.value);
 
 generateMazeButton.onclick = (event) => {
-    console.log("1");
+    mx = initField(canvas, ctx, countOfCells);
     for (let i = 0; i < countOfCells; ++i)
         for (let j = 0; j < countOfCells; ++j)
             mx[i][j] !== "start" && mx[i][j] !== "end" && (mx[i][j] = "wall");
@@ -107,16 +105,23 @@ generateMazeButton.onclick = (event) => {
     generateMazeRecursive(mx, visited, start);
 };
 
+clearCanvasButton.onclick = (event) => {
+    event.preventDefault();
+    mx = initField(canvas, ctx, countOfCells);
+    mx[start.x][start.y] = "start";
+    mx[end.x][end.y] = "end";
+};
+
 setInterval(() => {
     for (let i = 0; i < countOfCells; ++i)
         for (let j = 0; j < countOfCells; ++j) {
-            mx[i][j] === "wall" && (ctx.fillStyle = "brown");
+            mx[i][j] === "wall" && (ctx.fillStyle = "#171723");
             mx[i][j] === "None" && (ctx.fillStyle = "white");
-            mx[i][j] === "start" && (ctx.fillStyle = "blue");
-            mx[i][j] === "end" && (ctx.fillStyle = "red");
+            mx[i][j] === "start" && (ctx.fillStyle = "#004466");
+            mx[i][j] === "end" && (ctx.fillStyle = "#aa2200");
             mx[i][j] === "path" && (ctx.fillStyle = "yellow");
-            mx[i][j] === "passed" && (ctx.fillStyle = "grey");
-            mx[i][j] === "checking" && (ctx.fillStyle = "green");
+            mx[i][j] === "passed" && (ctx.fillStyle = "#828282");
+            mx[i][j] === "checking" && (ctx.fillStyle = "#178234");
 
             ctx.fillRect(
                 i * pixelSize + i,
@@ -138,7 +143,6 @@ const h = (cell) => Math.sqrt(Math.pow(cell.x, 2) + Math.pow(cell.y, 2));
 function tracePath(matrix, cellDetails, end) {
     let i = end.x;
     let j = end.y;
-    console.log(cellDetails);
 
     while (cellDetails[i][j].parent_i != i || cellDetails[i][j].parent_j != j) {
         matrix[i][j] = "path";
@@ -151,6 +155,12 @@ function tracePath(matrix, cellDetails, end) {
 const timer = async (ms) => new Promise((res) => setTimeout(res, ms));
 
 async function A_star(matrix, start, end, animation) {
+    const dDirections = [
+        { dx: -1, dy: 0 },
+        { dx: 1, dy: 0 },
+        { dx: 0, dy: -1 },
+        { dx: 0, dy: 1 },
+    ];
     let visited = new Array(countOfCells);
     for (let i = 0; i < countOfCells; ++i)
         visited[i] = new Array(countOfCells).fill(false);
@@ -197,41 +207,43 @@ async function A_star(matrix, start, end, animation) {
             markedCells.pop();
         }
 
-        for (let dX = -1; dX <= 1; ++dX)
-            for (let dY = -1; dY <= 1; ++dY) {
-                let i = p[1].x + dX,
-                    j = p[1].y + dY;
-                if (isValid({ x: i, y: j })) {
-                    if (i === end.x && j === end.y) {
-                        tracePath(matrix, cellDetails, {
-                            x: i - dX,
-                            y: j - dY,
-                        });
-                        return true;
-                    }
-                    if (!visited[i][j] && matrix[i][j] !== "wall") {
-                        matrix[i][j] = "checking";
-                        markedCells.push({ x: i, y: j });
-                        gNew = cellDetails[i - dX][j - dY].g + 1;
-                        hNew = h({ x: i, y: j });
-                        fNew = gNew + hNew;
+        for (let item = 0; item < dDirections.length; ++item) {
+            let i = p[1].x + dDirections[item].dx,
+                j = p[1].y + dDirections[item].dy;
+            if (isValid({ x: i, y: j })) {
+                if (i === end.x && j === end.y) {
+                    tracePath(matrix, cellDetails, {
+                        x: i - dDirections[item].dx,
+                        y: j - dDirections[item].dy,
+                    });
+                    return true;
+                }
+                if (!visited[i][j] && matrix[i][j] !== "wall") {
+                    matrix[i][j] = "checking";
+                    markedCells.push({ x: i, y: j });
+                    gNew =
+                        cellDetails[i - dDirections[item].dx][
+                            j - dDirections[item].dy
+                        ].g + 1;
+                    hNew = h({ x: i, y: j });
+                    fNew = gNew + hNew;
 
-                        if (
-                            cellDetails[i][j].f === REALLY_BIG_INT ||
-                            cellDetails[i][j].f > fNew
-                        ) {
-                            openList.set(fNew, { x: i, y: j });
-                            cellDetails[i][j] = {
-                                f: fNew,
-                                h: hNew,
-                                g: gNew,
-                                parent_i: i - dX,
-                                parent_j: j - dY,
-                            };
-                        }
+                    if (
+                        cellDetails[i][j].f === REALLY_BIG_INT ||
+                        cellDetails[i][j].f > fNew
+                    ) {
+                        openList.set(fNew, { x: i, y: j });
+                        cellDetails[i][j] = {
+                            f: fNew,
+                            h: hNew,
+                            g: gNew,
+                            parent_i: i - dDirections[item].dx,
+                            parent_j: j - dDirections[item].dy,
+                        };
                     }
                 }
             }
+        }
         if (animation) await timer(30);
     }
     return false;

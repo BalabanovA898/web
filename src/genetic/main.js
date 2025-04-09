@@ -6,6 +6,7 @@ const canvas = document.getElementById("main-canvas");
 const ctx = canvas.getContext("2d");
 const startButton = document.getElementById("start-btn");
 const resultP = document.getElementById("result");
+const clearButton = document.getElementById("clear-btn");
 
 const inputPopulationSize = document.getElementById("input1");
 const inputCountOfIteration = document.getElementById("input2");
@@ -70,9 +71,24 @@ function mutationA(a) {
     a.unshift(vB);
     return a;
 }
+
 function mutationB(a) {
     a.unshift(a.pop());
     return a;
+}
+
+function mutationC(a) {
+    let b = [...a];
+    while (true) {
+        let iA = getRandomArbitrary(0, a.length);
+        let iB = getRandomArbitrary(0, a.length);
+        if (iA !== iB) {
+            let temp = b[iA];
+            b[iA] = b[iB];
+            b[iB] = temp;
+            return b;
+        }
+    }
 }
 
 inputCountOfIteration.onchange = (event) => {
@@ -82,44 +98,67 @@ inputPopulationSize.onchange = (event) => {
     POPULATION_SIZE = Number(inputPopulationSize.value);
 };
 
+clearButton.onclick = (event) => {
+    event.preventDefault();
+    cities = [];
+};
+
+document.onkeydown = (event) =>
+    event.key === "z" && event.ctrlKey && cities.pop();
+
+function calculatePathLength(path) {
+    let distance = 0;
+    for (let i = 0; i < path.length - 1; ++i)
+        distance += getDistance(cities[path[i] - 1], cities[path[i + 1] - 1]);
+    return distance;
+}
+
+const comparePathsLength = (a, b) => {
+    let aDistance = calculatePathLength(a),
+        bDistance = calculatePathLength(b);
+    return aDistance - bDistance;
+};
+
 startButton.onclick = async (event) => {
     isStarted = true;
+    let temperature = 10000;
     let population = new Array(POPULATION_SIZE)
         .fill(0)
         .map(() => getRandomStats(cities.length));
-    console.log(population);
-    for (let i = 0; i < ITERATION_COUNT; ++i) {
-        population = population.toSorted((a, b) => {
-            let aDistance = 0,
-                bDistance = 0;
-            for (let j = 1; j < cities.length; ++j) {
-                aDistance += getDistance(
-                    cities[a[j] - 1],
-                    cities[a[j - 1] - 1]
-                );
-                bDistance += getDistance(
-                    cities[b[j] - 1],
-                    cities[b[j - 1] - 1]
-                );
-            }
-            return aDistance - bDistance;
-        });
-        console.log(population);
+    for (let i = 0; temperature > 1000 && i < ITERATION_COUNT; ++i) {
+        population = population.toSorted(comparePathsLength);
         let newPopulation = [];
-        for (let j = 0; j < POPULATION_SIZE / 10; ++j)
-            for (let k = j + 1; k < POPULATION_SIZE / 10; ++k)
-                newPopulation.push(evolution(population[j], population[k]));
-        for (let j = 0; j < (POPULATION_SIZE - POPULATION_SIZE / 2) / 4; ++j)
-            newPopulation.push(mutationA(population[j]));
-        for (let j = 0; j < (POPULATION_SIZE - POPULATION_SIZE / 2) / 4; ++j)
-            newPopulation.push(mutationB(population[j]));
 
-        population = newPopulation;
+        for (let k = 0; k < population.length; ++k) {
+            let p1 = population[k];
+            while (true) {
+                let new_g = mutationC(p1);
+                if (comparePathsLength(new_g, p1) < 0) {
+                    newPopulation.push(new_g);
+                    break;
+                } else {
+                    let prob = Math.pow(
+                        2.7,
+                        (-1 *
+                            (calculatePathLength(new_g) -
+                                calculatePathLength(p1))) /
+                            temperature
+                    );
+                    if (prob > 0.5) {
+                        newPopulation.push(new_g);
+                        break;
+                    }
+                }
+            }
+        }
+
+        population = newPopulation.toSorted(comparePathsLength);
         bestPath = population[0];
-        await timer(300);
-        resultP.innerText = "gen" + i + " " + bestPath.join(" ");
+        //temperature *= 0.99;
+        //await timer(300);
+        resultP.innerText = "gen " + i + ") " + bestPath.join(" ");
+        console.log(temperature);
     }
-    console.log(population);
 };
 
 const timer = async (ms) => new Promise((res) => setTimeout(res, ms));
@@ -127,7 +166,7 @@ const timer = async (ms) => new Promise((res) => setTimeout(res, ms));
 ctx.font = "50px Arial";
 
 setInterval(() => {
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#171723";
     ctx.fillRect(0, 0, 1000, 1000);
 
     ctx.fillStyle = "red";
