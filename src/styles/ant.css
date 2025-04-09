@@ -1,0 +1,30 @@
+.main-part {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.stats {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    width: 50%;
+}
+
+.genetic-btn {
+    height: 50px;
+    margin: 10px;
+}
+
+.genetic-input {
+    margin: 10px;
+    height: 50px;
+}
+
+.result-p {
+    margin: 10px;
+    font-size: 20px;
+    border-top: solid 2px var(--header-btn-color);
+    border-bottom: solid 2px var(--header-btn-color);
+    padding: 10px;
+}
