@@ -24,6 +24,12 @@ kButton.addEventListener("click", (event) => {
     k = parseInt(kInput.value);
 });
 
+document.getElementById('clearButton').addEventListener('click', () => {
+    points = [];
+    clusters = []; 
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+});
+
 document.getElementById("clusterButton").addEventListener("click", () => {
     clusters = kMeans(points, k);
     drawClusters();

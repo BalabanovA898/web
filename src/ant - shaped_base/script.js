@@ -145,3 +145,10 @@ function selectNextPoint(current, unvisited, pheromones, alpha, beta) {
 function getDistance(point1, point2) {
     return Math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2);
 }
+
+document.getElementById('clearButton').addEventListener('click', () => {
+    points = []; 
+    bestPath = []; 
+    bestDistance = Infinity; 
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+});
