@@ -21,7 +21,8 @@
                 background-color: black;
             }
 
-        #recognizeButton {
+        #recognizeButton
+        #clearButton {
             font-size: 20px;
             padding: 10px 20px;
             background-color: black;
@@ -49,7 +50,9 @@
     </table>
 
     <button id="recognizeButton">Распознать</button>
+    <button id="clearButton">Очистить</button>
     <p>Результат: <span id="result"></span></p>
+
 
     <script>
         const table = document.querySelector('table');
@@ -141,6 +144,10 @@
                 }
             }
         }
+        document.getElementById('clearButton').addEventListener('click', () => {
+            cells.forEach(cell => cell.classList.remove('active'));
+            resultSpan.textContent = ""; // Очищаем результат
+        });
     </script>
 
 </body>
