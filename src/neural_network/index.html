@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Распознавание Цифр 5x5</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            text-align: center;
+            cursor: pointer;
+            background-color: white;
+        }
+
+
+            td.active {
+                background-color: black;
+            }
+
+        #recognizeButton {
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body>
+        <div class="header">
+            <a class="header-btn" href="../a_star/index.html">A*</a>
+            <a class="header-btn" href="../clustering_bonus/index.html">Кластеризация</a>
+            <a class="header-btn" href="../genetic/index.html">Генетический алгоритм</a>
+            <a class="header-btn" href="../ant - shaped_base/index.html">Муравьиный алгоритм</a>
+            <a class="header-btn" href="../decisionTree/index.html">Дерево решений</a>
+            <a class="header-btn" href="../neural_network/index.html">Нейронные сети</a>
+        </div>
+
+    <h1>Нейронные сети</h1>
+
+    <table>
+        <tbody></tbody>
+    </table>
+
+    <button id="recognizeButton">Распознать</button>
+    <p>Результат: <span id="result"></span></p>
+
+    <script>
+        const table = document.querySelector('table');
+        const resultSpan = document.getElementById('result');
+
+   
+        for (let i = 0; i < 5; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < 5; j++) {
+                const cell = document.createElement('td');
+                cell.addEventListener('click', () => {
+                    cell.classList.toggle('active');
+                });
+                row.appendChild(cell);
+            }
+            table.querySelector('tbody').appendChild(row);
+        }
+
+        const cells = document.querySelectorAll('td');
+
+        const trainingData = {
+            "1": [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            "1": [0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            "1": [0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+            "1": [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+            "1": [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            "1": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+            "1": [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+            "1": [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+            "2": [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+            "2": [1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+            "2": [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+            "2": [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0],
+            "3": [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1],
+            "4": [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+            "5": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0],
+            "6": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            "7": [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+            "7": [0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            "7": [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+            "7": [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+            "8": [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            "9": [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            "0": [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            "0": [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
+
+
+        };
+
+
+        function predict(input) {
+            let bestMatch = null;
+            let bestScore = -1;
+
+            for (const digit in trainingData) {
+                let score = 0;
+                for (let i = 0; i < input.length; i++) {
+                    if (input[i] === trainingData[digit][i]) {
+                        score++;
+                    }
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = digit;
+                }
+            }
+
+            return bestMatch;
+        }
+
+        document.getElementById('recognizeButton').addEventListener('click', () => {
+            const inputData = Array.from(cells).map(cell => cell.classList.contains('active') ? 1 : 0);
+            const prediction = predict(inputData);
+            resultSpan.textContent = prediction !== null ? prediction : "Неизвестно";
+        });
+
+        function setTableValues(pattern) {
+            for (let i = 0; i < cells.length; i++) {
+                if (pattern[i] === 1) {
+                    cells[i].classList.add('active');
+                } else {
+                    cells[i].classList.remove('active');
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>
