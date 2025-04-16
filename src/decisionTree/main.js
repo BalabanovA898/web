@@ -123,7 +123,15 @@ function splitTableByIndex(table, index) {
 }
 
 class decisionTreeLeaf {
-    constructor(dataSet, condition, level, columnToSearch, classes, value) {
+    constructor(
+        dataSet,
+        condition,
+        level,
+        columnToSearch,
+        classes,
+        value,
+        nodeColor = "black"
+    ) {
         this.dataSet = dataSet;
         this.condition = condition;
         this.level = level;
@@ -132,6 +140,7 @@ class decisionTreeLeaf {
         this.columnToSearch = columnToSearch;
         this.classes = classes;
         this.value = value;
+        this.nodeColor = nodeColor;
     }
 
     splitLeaf() {
@@ -184,20 +193,13 @@ class decisionTreeLeaf {
         }
     }
 
-    predict(data, path) {
+    predict(data) {
+        this.nodeColor = "red";
         if (this.value) return this.value;
         if (Number(data[this.condition.row]) < Number(this.condition.value)) {
-            path.push({
-                x: path[path.length - 1].x,
-                y: path[path.length - 1].y + INITIAL_NODE_RADIUS * 2,
-            });
-            return this.left.predict(data, path);
+            return this.left.predict(data);
         } else {
-            path.push({
-                x: path[path.length - 1].x + 1000 / Math.pow(2, this.level + 1),
-                y: path[path.length - 1].y + INITIAL_NODE_RADIUS * 2,
-            });
-            return this.right.predict(data, path);
+            return this.right.predict(data);
         }
     }
 }
@@ -207,6 +209,7 @@ const testDataTextArea = document.getElementById("test-data");
 const testDataLoad = document.getElementById("test-data-load");
 const decisionTreeCanvas = document.getElementById("decision-tree-canvas");
 const testResult = document.getElementById("test-result");
+const fileLoad = document.getElementById("file-load");
 
 const ctx = decisionTreeCanvas.getContext("2d");
 
@@ -293,7 +296,7 @@ function drawDecisionTree(ctx, root) {
             if (nodes[i].right) children.push(nodes[i].right);
         }
         for (let i = 0; i < nodes.length; i++) {
-            ctx.fillStyle = "black";
+            ctx.fillStyle = nodes[i].nodeColor;
             ctx.beginPath();
             ctx.arc(
                 (1000 / nodes.length) * i +
@@ -319,66 +322,15 @@ function drawDecisionTree(ctx, root) {
                 170 * nodes[i].level + 75
             );
         }
-        ctx.strokeStyle = "black";
-        for (let j = 0; j < nodes.length; ++j) {
-            if (!children.length) return;
-            ctx.beginPath();
-            ctx.moveTo(
-                (1000 / nodes.length) * j +
-                    0.5 *
-                        Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
-                170 * nodes[j].level +
-                    0.5 * Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2)
-            );
-            ctx.lineTo(
-                (1000 / children.length) * (j * 2) +
-                    0.5 *
-                        Math.min(
-                            1000 / children.length,
-                            INITIAL_NODE_RADIUS * 2
-                        ),
-                170 * children[j * 2].level +
-                    0.5 *
-                        Math.min(
-                            1000 / children.length,
-                            INITIAL_NODE_RADIUS * 2
-                        )
-            );
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(
-                (1000 / nodes.length) * j +
-                    0.5 *
-                        Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
-                170 * nodes[j].level +
-                    0.5 * Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2)
-            );
-            ctx.lineTo(
-                (1000 / children.length) * (j * 2 + 1) +
-                    0.5 *
-                        Math.min(
-                            1000 / children.length,
-                            INITIAL_NODE_RADIUS * 2
-                        ),
-                170 * children[j * 2 + 1].level +
-                    0.5 *
-                        Math.min(
-                            1000 / children.length,
-                            INITIAL_NODE_RADIUS * 2
-                        )
-            );
-            ctx.stroke();
-        }
         nodes = children;
     }
 }
 
 testDataLoad.onclick = (event) => {
+    csvLoad.onclick(event);
     event.preventDefault();
     testData = testDataTextArea.value;
     testData = testData.split("\n").map((item) => item.split(","));
-    path = [{ x: INITIAL_NODE_RADIUS, y: INITIAL_NODE_RADIUS + 10 }];
     testResult.innerHTML = root.predict(testData[0], path);
 };
 
@@ -387,4 +339,9 @@ setInterval(() => {
     drawDecisionTree(ctx, root);
     if (path.length > 1) drawTestPath(ctx, path);
 }, 1000 / FPS);
+
+fileLoad.onchange = async (event) => {
+    let file = await new Response(fileLoad.files[0]).text();
+    csvTextArea.value = file;
+};
 

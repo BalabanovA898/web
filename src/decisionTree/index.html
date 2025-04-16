@@ -20,8 +20,13 @@
     </div>
     <div class="main-part">
         <div class="main-part-input-container">
-            <textarea id="csv-input" class="std-input decision-tree-text-area"
-                placeholder="Место для обучающей csv выборки"></textarea>
+            <div class="data-input-zone">
+                <textarea id="csv-input" class="std-input decision-tree-text-area"
+                    placeholder="Место для обучающей csv выборки"></textarea>
+                <input type="file" name="" id="file-load" class="std-input data-input-zone-input active"
+                    placeholder="placeholder">
+            </div>
+
             <input type="number" id="columnToSearch" class="std-input decision-tree-input"
                 placeholder="Номер столбца с результатом" />
             <button id="csv-load" class="std-btn decision-tree-btn">Загрузить</button>

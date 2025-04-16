@@ -44,3 +44,14 @@ canvas {
     border: #999999 2px solid;
     border-radius: 3px;
 }
+
+.data-input-zone {
+    position: relative;
+    display: block;
+}
+
+.data-input-zone-input {
+    width: 100%;
+    justify-content: center;
+}
+
