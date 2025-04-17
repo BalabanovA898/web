@@ -20,7 +20,7 @@ function drawPoints() {
     points.forEach((point, index) => {
         ctx.beginPath();
         ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = 'white';
         ctx.fill();
         ctx.stroke();
         ctx.fillText(index, point.x + 5, point.y - 5);
@@ -36,7 +36,7 @@ function drawBestPath() {
             ctx.lineTo(points[bestPath[i]].x, points[bestPath[i]].y);
         }
         ctx.closePath();
-        ctx.strokeStyle = 'red';
+        ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.stroke();
     }
@@ -57,7 +57,7 @@ function antColonyOptimization() {
     const alpha = 1; // Влияние феромонов
     const beta = 2; // Влияние расстояний
     const evaporationRate = 0.1; // Темп испарения феромонов
-    const pheromones = Array(points.length).fill(null).map(() => Array(points.length).fill(1)); // Изначальные феромоны
+    const pheromones = Array(points.length).fill(null).map(() => Array(points.length).fill(1));
 
     for (let iter = 0; iter < iterations; iter++) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -79,7 +79,7 @@ function antColonyOptimization() {
             unvisited.splice(unvisited.indexOf(currentPoint), 1);
         }
 
-        totalDistance += getDistance(points[path[path.length - 1]], points[path[0]]); // Замыкание пути
+        totalDistance += getDistance(points[path[path.length - 1]], points[path[0]]);
 
         if (totalDistance < bestDistance) {
             bestDistance = totalDistance;
@@ -88,7 +88,6 @@ function antColonyOptimization() {
 
         drawCurrentPath(path);
 
-        // Обновление феромонов
         for (let i = 0; i < path.length - 1; i++) {
             const a = path[i];
             const b = path[i + 1];
@@ -96,7 +95,7 @@ function antColonyOptimization() {
             pheromones[b][a] += 1 / totalDistance;
         }
 
-        // Испарение феромонов
+
         for (let i = 0; i < pheromones.length; i++) {
             for (let j = 0; j < pheromones[i].length; j++) {
                 pheromones[i][j] *= (1 - evaporationRate);
@@ -104,7 +103,6 @@ function antColonyOptimization() {
         }
     }
 
-    // Очистка и рисование лучшего пути в конце
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPoints();
     drawBestPath();
@@ -117,7 +115,7 @@ function drawCurrentPath(path) {
         ctx.lineTo(points[path[i]].x, points[path[i]].y);
     }
     ctx.closePath();
-    ctx.strokeStyle = 'blue';
+    ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     ctx.stroke();
 }
