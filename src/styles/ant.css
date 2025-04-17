@@ -16,15 +16,9 @@
     margin: 10px;
 }
 
-.genetic-input {
-    margin: 10px;
-    height: 50px;
-}
 
-.result-p {
-    margin: 10px;
-    font-size: 20px;
-    border-top: solid 2px var(--header-btn-color);
-    border-bottom: solid 2px var(--header-btn-color);
-    padding: 10px;
+canvas {
+    background-color: #171723;
+    border: #999999 2px solid;
+    border-radius: 3px;
 }
