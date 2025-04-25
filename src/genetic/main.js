@@ -1,9 +1,9 @@
 let POPULATION_SIZE = 100;
-let ITERATION_COUNT = 100;
+let ITERATION_COUNT = 300;
 const FPS = 15;
 
 const canvas = document.getElementById("main-canvas");
-const ctx = canvas.getContext("2d");
+const inputCanvasCtx = canvas.getContext("2d");
 const startButton = document.getElementById("start-btn");
 const resultP = document.getElementById("result");
 const clearButton = document.getElementById("clear-btn");
@@ -21,15 +21,15 @@ let bestPath = getRandomStats(cities.length);
 let isStarted = false;
 
 canvas.onclick = (event) => {
-    ctx.fillStyle = "red";
-    ctx.beginPath();
-    ctx.arc(event.offsetX, event.offsetY, 10, 0, 2 * Math.PI);
-    ctx.fill();
+    inputCanvasCtx.fillStyle = "red";
+    inputCanvasCtx.beginPath();
+    inputCanvasCtx.arc(event.offsetX, event.offsetY, 10, 0, 2 * Math.PI);
+    inputCanvasCtx.fill();
     for (let i = 0; i < cities.length; ++i) {
-        ctx.strokeColor = "red";
-        ctx.moveTo(event.offsetX, event.offsetY);
-        ctx.lineTo(cities[i].x, cities[i].y);
-        ctx.stroke();
+        inputCanvasCtx.strokeColor = "red";
+        inputCanvasCtx.moveTo(event.offsetX, event.offsetY);
+        inputCanvasCtx.lineTo(cities[i].x, cities[i].y);
+        inputCanvasCtx.stroke();
     }
     cities.push({ x: event.offsetX, y: event.offsetY });
     bestPath = getRandomStats(cities.length);
@@ -59,19 +59,6 @@ function evolution(a, b) {
     return res;
 }
 
-function mutationA(a) {
-    let iA = getRandomArbitrary(0, cities.length);
-    let iB = getRandomArbitrary(0, cities.length);
-    while (iA === iB) iB = getRandomArbitrary(0, cities.length);
-    let vA = a[iA];
-    let vB = a[iB];
-    a.splice(iA, 1);
-    a.splice(iB < iA ? iB : iB - 1, 1);
-    a.push(vA);
-    a.unshift(vB);
-    return a;
-}
-
 function mutationB(a) {
     a.unshift(a.pop());
     return a;
@@ -91,20 +78,10 @@ function mutationC(a) {
     }
 }
 
-inputCountOfIteration.onchange = (event) => {
-    ITERATION_COUNT = Number(inputCountOfIteration.value);
-};
-inputPopulationSize.onchange = (event) => {
-    POPULATION_SIZE = Number(inputPopulationSize.value);
-};
-
 clearButton.onclick = (event) => {
     event.preventDefault();
     cities = [];
 };
-
-document.onkeydown = (event) =>
-    event.key === "z" && event.ctrlKey && cities.pop();
 
 function calculatePathLength(path) {
     let distance = 0;
@@ -114,85 +91,87 @@ function calculatePathLength(path) {
 }
 
 const comparePathsLength = (a, b) => {
-    let aDistance = calculatePathLength(a),
-        bDistance = calculatePathLength(b);
+    let aDistance = calculatePathLength([...a, a[0]]),
+        bDistance = calculatePathLength([...b, b[0]]);
     return aDistance - bDistance;
 };
 
 startButton.onclick = async (event) => {
     isStarted = true;
-    let temperature = 10000;
+
+    POPULATION_SIZE = inputPopulationSize.value;
+    ITERATION_COUNT = inputCountOfIteration.value;
+
     let population = new Array(POPULATION_SIZE)
         .fill(0)
         .map(() => getRandomStats(cities.length));
-    for (let i = 0; temperature > 1000 && i < ITERATION_COUNT; ++i) {
-        population = population.toSorted(comparePathsLength);
+
+    for (let i = 0; i < ITERATION_COUNT; ++i) {
+        bestPath = population[0];
+
+        let parents = [];
+        for (let i = 0; (i < 4) & (i < population.length); ++i)
+            parents.push(population[i]);
+
         let newPopulation = [];
 
-        for (let k = 0; k < population.length; ++k) {
-            let p1 = population[k];
-            while (true) {
-                let new_g = mutationC(p1);
-                if (comparePathsLength(new_g, p1) < 0) {
-                    newPopulation.push(new_g);
-                    break;
-                } else {
-                    let prob = Math.pow(
-                        2.7,
-                        (-1 *
-                            (calculatePathLength(new_g) -
-                                calculatePathLength(p1))) /
-                            temperature
-                    );
-                    if (prob > 0.5) {
-                        newPopulation.push(new_g);
-                        break;
-                    }
-                }
+        parents.forEach((item, index) => {
+            for (let i = 0; i < POPULATION_SIZE / 4; ++i) {
+                newPopulation.push(item);
+                newPopulation.push(mutationB(item));
+                newPopulation.push(mutationC(item));
             }
-        }
-
+        });
         population = newPopulation.toSorted(comparePathsLength);
-        bestPath = population[0];
-        //temperature *= 0.99;
-        //await timer(300);
         resultP.innerText = "gen " + i + ") " + bestPath.join(" ");
-        console.log(temperature);
+        await timer(30);
     }
+    population = population.toSorted(comparePathsLength);
+    bestPath = population[0];
 };
 
 const timer = async (ms) => new Promise((res) => setTimeout(res, ms));
 
-ctx.font = "50px Arial";
+inputCanvasCtx.font = "50px Arial";
 
 setInterval(() => {
-    ctx.fillStyle = "#171723";
-    ctx.fillRect(0, 0, 1000, 1000);
-
-    ctx.fillStyle = "red";
-    for (let i = 0; i < cities.length; ++i) {
-        ctx.beginPath();
-        ctx.arc(cities[i].x, cities[i].y, 10, 0, 2 * Math.PI);
-        ctx.fillText(i + 1, cities[i].x, cities[i].y + 50);
-        ctx.fill();
-    }
+    inputCanvasCtx.fillStyle = "#171723";
+    inputCanvasCtx.fillRect(0, 0, 1000, 1000);
 
     if (!isStarted) {
-        ctx.strokeStyle = "#000";
+        inputCanvasCtx.strokeStyle = "#000";
         for (let i = 0; i < cities.length - 1; ++i)
             for (let j = i + 1; j < cities.length; ++j) {
-                ctx.beginPath();
-                ctx.moveTo(cities[j].x, cities[j].y);
-                ctx.lineTo(cities[i].x, cities[i].y);
-                ctx.stroke();
+                inputCanvasCtx.beginPath();
+                inputCanvasCtx.moveTo(cities[j].x, cities[j].y);
+                inputCanvasCtx.lineTo(cities[i].x, cities[i].y);
+                inputCanvasCtx.stroke();
             }
     }
     if (cities.length) {
-        ctx.strokeStyle = "#ffff00";
-        ctx.moveTo(cities[bestPath[0] - 1].x, cities[bestPath[0] - 1].y);
+        inputCanvasCtx.strokeStyle = "#ffff00";
+        inputCanvasCtx.moveTo(
+            cities[bestPath[0] - 1].x,
+            cities[bestPath[0] - 1].y
+        );
         for (let i = 1; i < cities.length; ++i)
-            ctx.lineTo(cities[bestPath[i] - 1].x, cities[bestPath[i] - 1].y);
-        ctx.stroke();
+            inputCanvasCtx.lineTo(
+                cities[bestPath[i] - 1].x,
+                cities[bestPath[i] - 1].y
+            );
+
+        inputCanvasCtx.lineTo(
+            cities[bestPath[0] - 1].x,
+            cities[bestPath[0] - 1].y
+        );
+        inputCanvasCtx.stroke();
+    }
+    inputCanvasCtx.fillStyle = "red";
+    for (let i = 0; i < cities.length; ++i) {
+        inputCanvasCtx.beginPath();
+        inputCanvasCtx.arc(cities[i].x, cities[i].y, 10, 0, 2 * Math.PI);
+        inputCanvasCtx.fillText(i + 1, cities[i].x, cities[i].y + 50);
+        inputCanvasCtx.fill();
     }
 }, 1000 / FPS);
 

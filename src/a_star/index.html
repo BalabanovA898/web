@@ -16,25 +16,26 @@
         <a class="header-btn" href="../genetic/index.html">Генетический алгоритм</a>
         <a class="header-btn" href="../ant - shaped_base/index.html">Муравьиный алгоритм</a>
         <a class="header-btn" href="../decisionTree/index.html">Дерево решений</a>
-        <a class="header-btn" href="../neural_network/index.html">Нейронные сети</a>
+        <a class="header-btn" href="../neural_network_bonus/dr/index.html">Нейронные сети</a>
     </div>
     <div class="main">
+        <noscript>Если хочешь что-то увидеть, то включи Java Script в натройках браузера.</noscript>
         <container class="main-input-container">
             <input type="number" class="std-input a-star-input" id="main-input-pixel-size"
                 placeholder="Введите количество клеток"></input>
-            <button class="std-btn a-star-btn" id="set-pixel-size-btn">Применить</button>
+            <button class="std-btn a-star-btn" id="main-set-pixel-size-btn">Применить</button>
             <select class="main-input-select std-btn a-star-btn" id="main-input-select">
                 <option value="start">start</option>
                 <option value="end">end</option>
-                <option value="wall">wall</option>
+                <option selected="selected" value="wall">wall</option>
             </select>
-            <button class="std-btn a-star-btn" id="main-a-star-btn">Найти путь</button>
+            <button class="std-btn a-star-btn" id="main-find-path">Найти путь</button>
             <button class="std-btn a-star-btn" id="main-generate-maze-btn">Создать лабиринт</button>
-            <button class="std-btn a-star-btn" id="canvas-clear">Очистить</button>
+            <button class="std-btn a-star-btn" id="main-canvas-clear">Очистить</button>
         </container>
         <container class="main-canvas-container">
             <canvas id="main-canvas" class="canvas">
-                Your browser so bad. Maybe it's time to get upgraded.
+                Похоже пора обновиться.
             </canvas>
         </container>
     </div>

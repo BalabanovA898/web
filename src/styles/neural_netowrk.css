@@ -1,0 +1,28 @@
+.main-part {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-part-canvas-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.main-part-canvas-container > button {
+    margin: 10px;
+}
+
+.main-part-canvas {
+    margin: 10px;
+    background-color: #171723;
+    border: solid 2px #999999;
+    border-radius: 2px;
+}
+
+.main-part-result {
+    font-size: 48px;
+    text-align: center;
+}
+

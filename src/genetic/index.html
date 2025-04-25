@@ -11,14 +11,15 @@
 
 <body>
     <div class="header">
-        <a class="header-btn" href="../a_star/index.html">A*</a>
-        <a class="header-btn" href="../clustering_bonus/index.html">Кластеризация</a>
-        <a class="header-btn" href="../genetic/index.html">Генетический алгоритм</a>
-        <a class="header-btn" href="../ant - shaped_base/index.html">Муравьиный алгоритм</a>
-        <a class="header-btn" href="../decisionTree/index.html">Дерево решений</a>
-        <a class="header-btn" href="../neural_network/index.html">Нейронные сети</a>
+        <a class="header-btn" href="../a_star/index.html">a*</a>
+        <a class="header-btn" href="../clustering_bonus/index.html">кластеризация</a>
+        <a class="header-btn" href="../genetic/index.html">генетический алгоритм</a>
+        <a class="header-btn" href="../ant - shaped_base/index.html">муравьиный алгоритм</a>
+        <a class="header-btn" href="../decisiontree/index.html">дерево решений</a>
+        <a class="header-btn" href="../neural_network_bonus/dr/index.html">нейронные сети</a>
     </div>
     <div class="main-part">
+        <noscript>Если хочешь что-то увидеть, то включи Java Script в натройках браузера.</noscript>
         <canvas class="main-canvas" id="main-canvas" width=800, height=800, style="background-color: #171723;">Похоже
             пора
             обновиться:)</canvas>
@@ -26,8 +27,10 @@
         <div class="stats">
             <button class="std-btn genetic-btn" id="start-btn">Начать поиск</button>
 
-            <input type="number" class="std-input genetic-input" id="input1" placeholder="Размер популяции" />
-            <input type="number" class="std-input genetic-input" id="input2" placeholder="Количество итераций" />
+            <input value="200" type="number" class="std-input genetic-input" id="input1"
+                placeholder="Размер популяции" />
+            <input value="200" type="number" class="std-input genetic-input" id="input2"
+                placeholder="Количество итераций" />
 
             <p class="result-p" id="result">Результат</p>
             <button class="std-btn genetic-btn" id="clear-btn">Очистить</button>

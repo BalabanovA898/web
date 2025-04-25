@@ -3,7 +3,7 @@ const kInput = document.getElementById("k-input");
 const kButton = document.getElementById("button2");
 const clearCanvasButton = document.getElementById("clear-canvas");
 
-const ctx = canvas.getContext("2d");
+const inputCanvasCtx = canvas.getContext("2d");
 
 canvas.width = 800;
 canvas.height = 600;
@@ -44,23 +44,23 @@ document.addEventListener("keydown", (event) => {
 });
 
 function drawPoints() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
+    inputCanvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    inputCanvasCtx.fillStyle = "white";
     points.forEach((point) => {
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-        ctx.fill();
+        inputCanvasCtx.beginPath();
+        inputCanvasCtx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        inputCanvasCtx.fill();
     });
 }
 
 function drawClusters() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    inputCanvasCtx.clearRect(0, 0, canvas.width, canvas.height);
     clusters.forEach((cluster) => {
-        ctx.fillStyle = cluster.color;
+        inputCanvasCtx.fillStyle = cluster.color;
         cluster.points.forEach((point) => {
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-            ctx.fill();
+            inputCanvasCtx.beginPath();
+            inputCanvasCtx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+            inputCanvasCtx.fill();
         });
     });
 }
