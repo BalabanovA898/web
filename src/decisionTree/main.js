@@ -13,12 +13,14 @@ function getProbabilityToBeClass(table, rowToSearch, classToCheck) {
 
 function E(table, rowToSearch, classCount, classList) {
     let probabilities = new Array(classCount).fill(0);
-    for (let i = 0; i < classCount; ++i)
-        probabilities[i] = getProbabilityToBeClass(
-            table,
-            rowToSearch,
-            classList[i]
-        );
+    classList.forEach(
+        (item, index) =>
+            (probabilities[index] = getProbabilityToBeClass(
+                table,
+                rowToSearch,
+                item
+            ))
+    );
     let result = probabilities.reduce(
         (result, item) =>
             result +
@@ -196,13 +198,12 @@ class decisionTreeLeaf {
     predict(data) {
         this.nodeColor = "red";
         if (this.value) return this.value;
-        if (Number(data[this.condition.row]) < Number(this.condition.value)) {
+        if (Number(data[this.condition.row]) < Number(this.condition.value))
             return this.left.predict(data);
-        } else {
-            return this.right.predict(data);
-        }
+        return this.right.predict(data);
     }
 }
+
 const csvTextArea = document.getElementById("csv-input");
 const csvLoad = document.getElementById("csv-load");
 const testDataTextArea = document.getElementById("test-data");
@@ -211,7 +212,7 @@ const decisionTreeCanvas = document.getElementById("decision-tree-canvas");
 const testResult = document.getElementById("test-result");
 const fileLoad = document.getElementById("file-load");
 
-const ctx = decisionTreeCanvas.getContext("2d");
+const inputCanvasCtx = decisionTreeCanvas.getContext("2d");
 
 decisionTreeCanvas.width = 1000;
 decisionTreeCanvas.height = 1000;
@@ -224,7 +225,6 @@ let testData = "";
 let data = [[]];
 let headers = [];
 let transposedData = [[]];
-let path = [{ x: INITIAL_NODE_RADIUS, y: INITIAL_NODE_RADIUS + 10 }];
 
 let columnToSearch = 0;
 
@@ -263,31 +263,17 @@ csvLoad.onclick = (event) => {
     }
 };
 
-function drawTestPath(ctx, path) {
-    ctx.fillStyle = "red";
-    ctx.strokeStyle = "red";
-    console.log(path);
-
-    for (let i = 0; i < path.length; ++i) {
-        ctx.beginPath();
-        ctx.arc(path[i].x, path[i].y, 10, 0, 2 * Math.PI);
-        ctx.fill();
-        if (i > 0) {
-            ctx.beginPath();
-            ctx.moveTo(path[i - 1].x, path[i - 1].y);
-            ctx.lineTo(path[i].x, path[i].y);
-            ctx.stroke();
-        }
-    }
+function clearCanvas(inputCanvasCtx) {
+    inputCanvasCtx.clearRect(
+        0,
+        0,
+        decisionTreeCanvas.width,
+        decisionTreeCanvas.height
+    );
 }
 
-function clearCanvas(ctx) {
-    ctx.clearRect(0, 0, decisionTreeCanvas.width, decisionTreeCanvas.height);
-}
-
-function drawDecisionTree(ctx, root) {
+function drawDecisionTree(inputCanvasCtx, root) {
     if (!root) return;
-    ctx.fillStyle = "black";
     let nodes = [root];
     while (nodes.length > 0) {
         let children = [];
@@ -296,9 +282,9 @@ function drawDecisionTree(ctx, root) {
             if (nodes[i].right) children.push(nodes[i].right);
         }
         for (let i = 0; i < nodes.length; i++) {
-            ctx.fillStyle = nodes[i].nodeColor;
-            ctx.beginPath();
-            ctx.arc(
+            inputCanvasCtx.fillStyle = nodes[i].nodeColor;
+            inputCanvasCtx.beginPath();
+            inputCanvasCtx.arc(
                 (1000 / nodes.length) * i +
                     0.5 *
                         Math.min(1000 / nodes.length, INITIAL_NODE_RADIUS * 2),
@@ -309,10 +295,10 @@ function drawDecisionTree(ctx, root) {
                 0,
                 2 * Math.PI
             );
-            ctx.fill();
-            ctx.fillStyle = "white";
-            ctx.font = "15px Arial";
-            ctx.fillText(
+            inputCanvasCtx.fill();
+            inputCanvasCtx.fillStyle = "white";
+            inputCanvasCtx.font = "15px Arial";
+            inputCanvasCtx.fillText(
                 !nodes[i].value
                     ? headers[nodes[i].condition.row] +
                           " < " +
@@ -331,17 +317,16 @@ testDataLoad.onclick = (event) => {
     event.preventDefault();
     testData = testDataTextArea.value;
     testData = testData.split("\n").map((item) => item.split(","));
-    testResult.innerHTML = root.predict(testData[0], path);
+    testResult.innerHTML = root.predict(testData[0]);
 };
-
-setInterval(() => {
-    clearCanvas(ctx);
-    drawDecisionTree(ctx, root);
-    if (path.length > 1) drawTestPath(ctx, path);
-}, 1000 / FPS);
 
 fileLoad.onchange = async (event) => {
     let file = await new Response(fileLoad.files[0]).text();
     csvTextArea.value = file;
 };
+
+setInterval(() => {
+    clearCanvas(inputCanvasCtx);
+    drawDecisionTree(inputCanvasCtx, root);
+}, 1000 / FPS);
 
