@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Распознавание Цифр 5x5</title>
+    <title>Распознавание цифр 5x5 с нейросетью</title>
     <style>
         table {
             border-collapse: collapse;
@@ -30,35 +30,47 @@
             border: 2px solid white;
             cursor: pointer;
         }
+
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px;
+        }
     </style>
     <link rel="stylesheet" href="../styles/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
 </head>
 <body>
-        <div class="header">
-            <a class="header-btn" href="../a_star/index.html">A*</a>
-            <a class="header-btn" href="../clustering_bonus/index.html">Кластеризация</a>
-            <a class="header-btn" href="../genetic/index.html">Генетический алгоритм</a>
-            <a class="header-btn" href="../ant - shaped_base/index.html">Муравьиный алгоритм</a>
-            <a class="header-btn" href="../decisionTree/index.html">Дерево решений</a>
-            <a class="header-btn" href="../neural_network/index.html">Нейронные сети</a>
+    <div class="header">
+        <a class="header-btn" href="../a_star/index.html">A*</a>
+        <a class="header-btn" href="../clustering_bonus/index.html">Кластеризация</a>
+        <a class="header-btn" href="../genetic/index.html">Генетический алгоритм</a>
+        <a class="header-btn" href="../ant - shaped_base/index.html">Муравьиный алгоритм</a>
+        <a class="header-btn" href="../decisionTree/index.html">Дерево решений</a>
+        <a class="header-btn" href="../neural_network/index.html">Нейронные сети</a>
+    </div>
+
+    <div class="container">
+        <h1>Нейронная сеть для распознавания цифр 5x5</h1>
+
+        <table>
+            <tbody></tbody>
+        </table>
+
+        <div>
+            <button id="recognizeButton">Распознать</button>
+            <button id="clearButton">Очистить</button>
         </div>
 
-    <h1>Нейронные сети</h1>
-
-    <table>
-        <tbody></tbody>
-    </table>
-
-    <button id="recognizeButton">Распознать</button>
-    <button id="clearButton">Очистить</button>
-    <p>Результат: <span id="result"></span></p>
-
+        <p>Результат: <span id="result">-</span></p>
+        <p id="status">Загрузка модели...</p>
+    </div>
 
     <script>
         const table = document.querySelector('table');
         const resultSpan = document.getElementById('result');
+        const statusSpan = document.getElementById('status');
 
-   
         for (let i = 0; i < 5; i++) {
             const row = document.createElement('tr');
             for (let j = 0; j < 5; j++) {
@@ -72,83 +84,182 @@
         }
 
         const cells = document.querySelectorAll('td');
-
-        const trainingData = {
-            "1": [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            "1": [0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            "1": [0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-            "1": [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-            "1": [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-            "1": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-            "1": [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
-            "1": [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-            "2": [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
-            "2": [1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0],
-            "2": [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
-            "2": [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0],
-            "3": [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1],
-            "4": [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-            "4": [0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-            "5": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0],
-            "5": [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
-            "6": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-            "6": [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
-            "6": [1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0],
-            "7": [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-            "7": [0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-            "7": [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-            "7": [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-            "8": [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-            "8": [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
-            "9": [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-            "9": [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
-            "9": [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
-            "0": [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-            "0": [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
-        };
+        let model;
 
 
-        function predict(input) {
-            let bestMatch = null;
-            let bestScore = -1;
+        async function createAndTrainModel() {
+            statusSpan.textContent = "Создание модели...";
 
-            for (const digit in trainingData) {
-                let score = 0;
-                for (let i = 0; i < input.length; i++) {
-                    if (input[i] === trainingData[digit][i]) {
-                        score++;
+            model = tf.sequential();
+
+            model.add(tf.layers.dense({
+                units: 64,
+                activation: 'relu',
+                inputShape: [25]
+            }));
+
+            model.add(tf.layers.dense({
+                units: 32,
+                activation: 'relu'
+            }));
+
+            model.add(tf.layers.dense({
+                units: 10,
+                activation: 'softmax'
+            }));
+
+            model.compile({
+                optimizer: 'adam',
+                loss: 'categoricalCrossentropy',
+                metrics: ['accuracy']
+            });
+
+            statusSpan.textContent = "Генерация тренировочных данных...";
+
+            const { inputs, labels } = generateTrainingData();
+
+            statusSpan.textContent = "Обучение модели...";
+
+            await model.fit(inputs, labels, {
+                epochs: 50,
+                batchSize: 32,
+                callbacks: {
+                    onEpochEnd: (epoch, logs) => {
+                        statusSpan.textContent = `Обучение... Эпоха ${epoch + 1} из 50. Точность: ${logs.acc.toFixed(3)}`;
                     }
                 }
+            });
 
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMatch = digit;
+            statusSpan.textContent = "Модель готова к использованию!";
+        }
+
+        function generateTrainingData() {
+            const digitPatterns = {
+                "0": [
+                    [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+                    [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
+
+                ],
+                "1": [
+                    [0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+                    [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+                    [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+                    [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                    [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+
+                ],
+                "2": [
+                    [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+                    [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1]
+                ],
+                "3": [
+                    [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
+                    [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                ],
+                "4": [
+                    [1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0],
+                    [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+                    [0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+                ],
+                "5": [
+                    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
+                ],
+                "6": [
+                    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+                    [1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0],
+                ],
+                "7": [
+                    [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+                    [0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+                    [0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0]
+                ],
+                "8": [
+                    [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+                    [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0]
+                ],
+                "9": [
+                    [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+                    [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                    [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
+                    [0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0]
+                ]
+            };
+
+            const inputs = [];
+            const labels = [];
+
+            for (let digit in digitPatterns) {
+                const digitNum = parseInt(digit);
+                for (let pattern of digitPatterns[digit]) {
+                    inputs.push(pattern);
+                    labels.push(digitNum);
+
+                    for (let i = 0; i < 5; i++) {
+                        const noisyPattern = [...pattern];
+                        for (let j = 0; j < 3; j++) {
+                            const idx = Math.floor(Math.random() * 25);
+                            noisyPattern[idx] = noisyPattern[idx] === 1 ? 0 : 1;
+                        }
+                        inputs.push(noisyPattern);
+                        labels.push(digitNum);
+                    }
                 }
             }
 
-            return bestMatch;
+            const inputTensor = tf.tensor2d(inputs, [inputs.length, 25]);
+            const labelTensor = tf.oneHot(tf.tensor1d(labels, 'int32'), 10);
+
+            return { inputs: inputTensor, labels: labelTensor };
         }
 
-        document.getElementById('recognizeButton').addEventListener('click', () => {
-            const inputData = Array.from(cells).map(cell => cell.classList.contains('active') ? 1 : 0);
-            const prediction = predict(inputData);
-            resultSpan.textContent = prediction !== null ? prediction : "Неизвестно";
-        });
-
-        function setTableValues(pattern) {
-            for (let i = 0; i < cells.length; i++) {
-                if (pattern[i] === 1) {
-                    cells[i].classList.add('active');
-                } else {
-                    cells[i].classList.remove('active');
-                }
+        async function predictDigit() {
+            if (!model) {
+                resultSpan.textContent = "Модель не загружена";
+                return;
             }
+
+            const inputData = Array.from(cells).map(cell =>
+                cell.classList.contains('active') ? 1 : 0
+            );
+
+            const inputTensor = tf.tensor2d([inputData], [1, 25]);
+
+            const prediction = model.predict(inputTensor);
+            const predictedClass = prediction.argMax(1).dataSync()[0];
+
+            inputTensor.dispose();
+            prediction.dispose();
+
+            resultSpan.textContent = predictedClass;
         }
-        document.getElementById('clearButton').addEventListener('click', () => {
+
+        function clearTable() {
             cells.forEach(cell => cell.classList.remove('active'));
-            resultSpan.textContent = ""; // Очищаем результат
+            resultSpan.textContent = "-";
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('recognizeButton').addEventListener('click', predictDigit);
+            document.getElementById('clearButton').addEventListener('click', clearTable);
+
+            try {
+                await createAndTrainModel();
+            } catch (error) {
+                statusSpan.textContent = "Ошибка: " + error.message;
+                console.error(error);
+            }
         });
     </script>
-
 </body>
 </html>
